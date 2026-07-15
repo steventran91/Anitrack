@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 def db_session():
     connection = engine.connect()
     transaction = connection.begin()
-    session = sessionmaker(bind=connection)()
+    session = sessionmaker(bind=connection, join_transaction_mode="create_savepoint")()
 
     yield session
 

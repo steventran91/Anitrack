@@ -1,4 +1,5 @@
 import httpx
+from app.schemas.anime import AnimeSearchResult
 
 ANILIST_API_URL = "https://graphql.anilist.co"
 
@@ -42,3 +43,23 @@ async def search_anime(search: str, page: int = 1, per_page: int = 20) -> dict:
         )
         response.raise_for_status()
         return response.json()
+    
+def map_to_anime_search_results(raw_data: dict) -> list[AnimeSearchResult]:
+    media_list = raw_data["data"]["Page"]["media"]
+
+    results = []
+    for media in media_list:
+        results.append(
+            AnimeSearchResult(
+                id=media["id"],
+                title_english=media["title"]["english"],
+                title_native=media["title"]["native"],
+                image=media["coverImage"]["large"],
+                episodes=media["episodes"],
+                status=media["status"],
+                genres=media["genres"],
+                average_score=media["averageScore"],
+            )
+        )
+    
+    return results 

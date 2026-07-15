@@ -33,7 +33,7 @@ query ($search: String, $page: Int, $perPage: Int) {
 async def search_anime(search: str, page: int = 1, per_page: int = 20) -> dict:
     variables = {"search": search, "page": page, "perPage": per_page}
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10.0) as client:
         response = await client.post(
             ANILIST_API_URL,
             json={

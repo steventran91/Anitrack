@@ -105,7 +105,7 @@ async def search_manga(search: str, page: int = 1, per_page: int = 20) -> dict:
         response.raise_for_status()
         return response.json()
     
-def map_to_manga_search_result(raw_data: dict) -> list[MangaSearchResult]:
+def map_to_manga_search_results(raw_data: dict) -> list[MangaSearchResult]:
     media_list = raw_data["data"]["Page"]["media"]
 
     results = []

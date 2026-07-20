@@ -20,3 +20,8 @@ class MangaSearchResult(BaseModel):
     status: str
     genres: list[str]
     average_score: int | None = None 
+
+class AnimeDetail(AnimeSearchResult):
+    description: str | None = None
+    banner_image: HttpUrl | None = None 
+    studios: list[str] 

@@ -1,5 +1,5 @@
 import httpx
-from app.schemas.anime import AnimeSearchResult, MangaSearchResult
+from app.schemas.anime import AnimeSearchResult, MangaSearchResult, AnimeDetail
 
 ANILIST_API_URL = "https://graphql.anilist.co"
 
@@ -56,6 +56,33 @@ query ($search: String, $page: Int, $perPage: Int) {
         }
     }
 }
+"""
+
+SEARCH_ANIME_DETAILS = """
+query ($id: Int) {
+  Media(id: $id, type: ANIME) {
+    id
+    title {
+      english
+      native
+    }
+    coverImage {
+      large
+    }
+    episodes
+    status
+    genres
+    averageScore
+    description
+    bannerImage
+    studios {
+      nodes {
+        name
+      }
+    }
+  }
+}
+
 """
 
 async def search_anime(search: str, page: int = 1, per_page: int = 20) -> dict:
@@ -124,3 +151,34 @@ def map_to_manga_search_results(raw_data: dict) -> list[MangaSearchResult]:
             )
         )
     return results
+
+async def get_anime_details(anime_id: int) -> dict:
+    variables = {"id": anime_id}
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.post(
+            ANILIST_API_URL,
+            json={
+                "query": SEARCH_ANIME_DETAILS,
+                "variables": variables,
+            }
+        )
+        response.raise_for_status()
+        return response.json()
+    
+def map_to_anime_detail(raw_data: dict) -> AnimeDetail:
+    media = raw_data["data"]["Media"]
+
+    return  AnimeDetail(
+                    id=media["id"],
+                    description=media["description"],
+                    banner_image=media["bannerImage"],
+                    title_english=media["title"]["english"],
+                    title_native=media["title"]["native"],
+                    image=media["coverImage"]["large"],
+                    episodes=media["episodes"],
+                    status=media["status"],
+                    genres=media["genres"],
+                    average_score=media["averageScore"], 
+                    studios=[studio["name"] for studio in media["studios"]["nodes"]]
+            )

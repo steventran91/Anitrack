@@ -101,3 +101,11 @@ def test_anime_details_not_found(client, monkeypatch):
     response = client.get("/anime/1")
     assert response.status_code == 404
 
+def test_anime_detail_anilist_down(client, monkeypatch):
+    mock_anime_details = AsyncMock(side_effect=httpx.RequestError("AniList down"))
+    monkeypatch.setattr("app.api.routers.anime.get_anime_details", mock_anime_details)
+
+    response = client.get("/anime/1")
+    assert response.status_code == 503
+
+

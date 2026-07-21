@@ -1,5 +1,5 @@
 import httpx
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 def test_anime_search_success(client, monkeypatch):
     fake_anilist_response = {
@@ -65,3 +65,39 @@ def test_anime_search_passes_pagination(client, monkeypatch):
 def test_anime_search_missing_params(client):
     response = client.get("/anime")
     assert response.status_code == 422
+
+def test_anime_details_success(client, monkeypatch):
+    fake_anilist_response = {
+        "data": {
+            "Media": {
+                "id": 1,
+                "title": {"english": "Naruto", "native": "ナルト"},
+                "coverImage": {"large": "http://example.com/img.jpg"},
+                "episodes": 220,
+                "status": "FINISHED",
+                "genres": ["Action"],
+                "averageScore": 79,
+                "description": "A ninja story.",
+                "bannerImage": "http://example.com/banner.jpg",
+                "studios": {"nodes": [{"name": "Studio Pierrot"}]},
+            }
+        }
+    }
+    mock_anime_detail = AsyncMock(return_value=fake_anilist_response)
+    monkeypatch.setattr("app.api.routers.anime.get_anime_details", mock_anime_detail)
+
+    response = client.get("/anime/1")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == 1
+
+def test_anime_details_not_found(client, monkeypatch):
+    fake_response = Mock(status_code=404)
+    error = httpx.HTTPStatusError("Not found", request=Mock(), response=fake_response)
+    mock = AsyncMock(side_effect=error)
+    monkeypatch.setattr("app.api.routers.anime.get_anime_details", mock)
+
+    response = client.get("/anime/1")
+    assert response.status_code == 404
+

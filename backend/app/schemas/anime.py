@@ -25,3 +25,8 @@ class AnimeDetail(AnimeSearchResult):
     description: str | None = None
     banner_image: HttpUrl | None = None 
     studios: list[str] 
+
+class MangaDetail(MangaSearchResult):
+    description: str | None = None
+    banner_image: HttpUrl | None = None
+    authors: list[str]

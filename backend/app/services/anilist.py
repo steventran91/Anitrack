@@ -1,5 +1,5 @@
 import httpx
-from app.schemas.anime import AnimeSearchResult, MangaSearchResult, AnimeDetail
+from app.schemas.anime import AnimeSearchResult, MangaSearchResult, AnimeDetail, MangaDetail
 
 ANILIST_API_URL = "https://graphql.anilist.co"
 
@@ -82,7 +82,35 @@ query ($id: Int) {
     }
   }
 }
+"""
 
+SEARCH_MANGA_DETAILS = """
+query ($id: Int) {
+  Media(id: $id, type: MANGA) {
+    id
+    title {
+      english
+      native
+    }
+    coverImage {
+      large
+    }
+    chapters
+    volumes
+    status
+    genres
+    averageScore
+    description
+    bannerImage
+    staff {
+      nodes {
+        name {
+            full 
+        }
+      }
+    }
+  }
+}
 """
 
 async def search_anime(search: str, page: int = 1, per_page: int = 20) -> dict:
@@ -182,3 +210,35 @@ def map_to_anime_detail(raw_data: dict) -> AnimeDetail:
                     average_score=media["averageScore"], 
                     studios=[studio["name"] for studio in media["studios"]["nodes"]]
             )
+
+async def get_manga_details(manga_id: int) -> dict:
+    variables = {"id": manga_id}
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        response = await client.post(
+            ANILIST_API_URL,
+            json={
+                "query": SEARCH_MANGA_DETAILS,
+                "variables": variables,
+            }
+        )
+        response.raise_for_status()
+        return response.json()
+    
+def map_to_manga_detail(raw_data: dict) -> MangaDetail:
+    media = raw_data["data"]["Media"]
+
+    return MangaDetail(
+        id=media["id"],
+        description=media["description"],
+        banner_image=media["bannerImage"],
+        title_english=media["title"]["english"],
+        title_native=media["title"]["native"],
+        image=media["coverImage"]["large"],
+        chapters=media["chapters"],
+        volumes=media["volumes"],
+        status=media["status"],
+        genres=media["genres"],
+        average_score=media["averageScore"],
+        authors=[staff["name"]["full"] for staff in media["staff"]["nodes"]]
+    )

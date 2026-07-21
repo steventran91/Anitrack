@@ -25,5 +25,4 @@ async def get_anime_details_route(anime_id: int):
         raise HTTPException(status_code=503, detail="AniList is currently unavailable")
     except httpx.RequestError:
         raise HTTPException(status_code=503, detail="AniList is currently unavailable")
-
     return map_to_anime_detail(raw)

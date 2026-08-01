@@ -90,6 +90,11 @@ def test_list_anime_library_only_returns_own_entries(client, db_session, auth_he
     data = response.json()
     assert data["anime_id"] == 22
 
+    response = client.get("/library/anime", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert data[0]["anime_id"] == 22
+
 def test_update_anime_library_entry(client, auth_headers):
     response = client.post(
         "/library/anime",

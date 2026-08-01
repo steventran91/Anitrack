@@ -104,7 +104,7 @@ def test_me_with_valid_token(client):
         },
     )
     assert response.status_code == 201
-    registered_id = response.json()["id"]
+    regisidtered_ = response.json()["id"]
 
     login_response = client.post(
         "/auth/login",

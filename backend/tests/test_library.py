@@ -1,5 +1,6 @@
 from app.models.user import User
 from app.models.anime import AnimeLibraryEntry
+from app.schemas.library import AnimeLibraryEntryUpdate
 from app.api.routers.auth import hash_password
 
 def test_add_anime_to_library_success(client, db_session):
@@ -88,6 +89,36 @@ def test_list_anime_library_only_returns_own_entries(client, db_session, auth_he
     assert response.status_code == 201
     data = response.json()
     assert data["anime_id"] == 22
+
+def test_update_anime_library_entry(client, auth_headers):
+    response = client.post(
+        "/library/anime",
+        json={
+            "anime_id": 22,
+            "status": "watching",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 201
+
+    response = client.patch(
+        f"/library/anime/22",
+        json={
+            "status": "completed",
+            "current_episode": 100,
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "completed"
+    assert data["current_episode"] == 100
+
+    
+
+
+
+
 
 
 

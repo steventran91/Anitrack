@@ -125,7 +125,19 @@ def test_update_nonexistent_entry(client, auth_headers):
     )
     assert response.status_code == 404
 
+def test_delete_anime_library_entry(client, auth_headers):
+    response = client.post(
+        "/library/anime",
+        json={
+            "anime_id": 25,
+            "current_episode": 10,
+        },
+        headers=auth_headers
+    )
+    assert response.status_code == 201
 
+    response = client.delete("/library/anime/25", headers=auth_headers)
+    assert response.status_code == 204
 
     
 

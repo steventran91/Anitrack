@@ -36,3 +36,29 @@ def list_anime_library(
 ):
     anime_list = db.query(AnimeLibraryEntry).filter(AnimeLibraryEntry.user_id == current_user.id).all()
     return anime_list
+
+@router.patch("/library/anime/{anime_id}", response_model=AnimeLibraryEntryOut)
+def update_anime_library_entry(anime_id: int, entry_in: AnimeLibraryEntryUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    anime = db.query(AnimeLibraryEntry).filter(AnimeLibraryEntry.user_id == current_user.id, AnimeLibraryEntry.anime_id == anime_id).first()
+
+    if not anime:
+        raise HTTPException(status_code=404, detail="Anime not found")
+    if entry_in.status is not None:
+        anime.status = entry_in.status
+    if entry_in.current_episode is not None:
+        anime.current_episode = entry_in.current_episode
+    
+    db.commit()
+    db.refresh(anime)
+    return anime
+
+@router.delete("/library/anime/{anime_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_anime_library_entry(anime_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    anime = db.query(AnimeLibraryEntry).filter(AnimeLibraryEntry.user_id == current_user.id, AnimeLibraryEntry.anime_id == anime_id).first()
+
+    if not anime:
+        raise HTTPException(status_code=404, detail="Anime not found")
+    db.delete(anime)
+    db.commit()
+    return None
+

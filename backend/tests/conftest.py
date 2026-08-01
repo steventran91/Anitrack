@@ -28,3 +28,15 @@ def client(db_session):
     yield TestClient(app)
     app.dependency_overrides.clear()
 
+@pytest.fixture()
+def auth_headers(client):
+    client.post("/auth/register", json={
+        "first_name": "Max", "last_name": "Tran",
+        "email": "max123@gmail.com", "password": "max123",
+    })
+    login_response = client.post("/auth/login", json={
+        "email": "max123@gmail.com", "password": "max123",
+    })
+    token = login_response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+

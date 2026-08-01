@@ -139,6 +139,16 @@ def test_delete_anime_library_entry(client, auth_headers):
     response = client.delete("/library/anime/25", headers=auth_headers)
     assert response.status_code == 204
 
+def test_library_requires_auth(client):
+    response = client.post(
+        "/library/anime",
+        json={
+            "anime_id": 20,
+            "current_episode": 3,
+        },
+    )
+    assert response.status_code == 401
+
     
 
 

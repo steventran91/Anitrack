@@ -102,7 +102,7 @@ def test_update_anime_library_entry(client, auth_headers):
     assert response.status_code == 201
 
     response = client.patch(
-        f"/library/anime/22",
+        "/library/anime/22",
         json={
             "status": "completed",
             "current_episode": 100,
@@ -113,6 +113,19 @@ def test_update_anime_library_entry(client, auth_headers):
     data = response.json()
     assert data["status"] == "completed"
     assert data["current_episode"] == 100
+
+def test_update_nonexistent_entry(client, auth_headers):
+    response = client.patch(
+        "/library/anime/1000",
+        json={
+            "status": "dropped",
+            "current_episode": "2",
+        },
+        headers=auth_headers
+    )
+    assert response.status_code == 404
+
+
 
     
 

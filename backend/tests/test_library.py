@@ -1,9 +1,8 @@
 from app.models.user import User
-from app.models.anime import AnimeLibraryEntry
-from app.schemas.library import AnimeLibraryEntryUpdate
+from app.models.anime import AnimeLibraryEntry, MangaLibraryEntry
 from app.api.routers.auth import hash_password
 
-def test_add_anime_to_library_success(client, db_session):
+def test_add_anime_to_library_success(client):
     response = client.post(
         "/auth/register",
         json={
@@ -145,7 +144,7 @@ def test_delete_anime_library_entry(client, auth_headers):
     response = client.delete("/library/anime/25", headers=auth_headers)
     assert response.status_code == 204
 
-def test_library_requires_auth(client):
+def test_anime_library_requires_auth(client):
     response = client.post(
         "/library/anime",
         json={
@@ -155,12 +154,165 @@ def test_library_requires_auth(client):
     )
     assert response.status_code == 401
 
-    
+def test_add_manga_to_library(client):
 
 
+    response = client.post(
+        "/auth/register",
+        json={
+            "first_name": "Max",
+            "last_name": "Tran",
+            "email": "Maximus@gmail.com",
+            "password": "Max123",
+        },
+    )
+    assert response.status_code == 201
 
+    response = client.post(
+        "/auth/login",
+        json={
+            "email": "Maximus@gmail.com",
+            "password": "Max123",
+        },
+    )
+    assert response.status_code == 200
+    token = response.json()["access_token"]
 
+    response = client.post(
+        "/library/manga",
+        json={
+            "manga_id": 21,
+            "status": "reading",
+        },
+        headers={
+            "Authorization": f"Bearer {token}"
+        },
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["manga_id"] == 21
+    assert data["status"] == "reading"
 
+def test_add_manga_duplicate(client, auth_headers):
+    response = client.post(
+        "/library/manga",
+        json={
+            "manga_id": 21,
+            "status": "reading",
+        },
+        headers=auth_headers
+    )
+    assert response.status_code == 201
 
+    response = client.post(
+        "/library/manga",
+        json={
+            "manga_id": 21,
+            "status": "reading",
+        },
+        headers=auth_headers,
+    )
 
+    assert response.status_code == 400
 
+def test_list_manga_library_only_return_own_entries(client, db_session, auth_headers):
+    other_user = User(
+        first_name="Other",
+        last_name="User",
+        email="other@example.com",
+        hashed_password=hash_password("password123"),
+    )
+    db_session.add(other_user)
+    db_session.commit()
+    db_session.refresh(other_user)
+
+    other_entry = MangaLibraryEntry(
+        user_id=other_user.id,
+        manga_id=999,
+        status="reading",
+    )
+    db_session.add(other_entry)
+    db_session.commit()
+
+    response = client.post(
+        "/library/manga",
+        json={
+            "manga_id": 22,
+            "status": "reading",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["manga_id"] == 22
+
+    response = client.get(
+        "/library/manga",
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["manga_id"] == 22
+
+def test_update_manga_library_entry(client, auth_headers):
+    response = client.post(
+        "/library/manga",
+        json={
+            "manga_id": 98,
+            "status": "reading",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 201
+
+    response = client.patch(
+        "/library/manga/98",
+        json={
+            "status": "completed",
+            "current_chapter": 100,
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "completed"
+    assert data["current_chapter"] == 100
+
+def test_update_nonexistent_manga_entry(client, auth_headers):
+
+    response = client.patch(
+        "/library/manga/100",
+        json={
+            "status": "dropped"
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 404
+
+def test_delete_manga_entry(client, auth_headers):
+    response = client.post(
+        "/library/manga",
+        json={
+            "manga_id": 100,
+            "status": "reading",
+        },
+        headers=auth_headers,
+    )
+    assert response.status_code == 201 
+
+    response = client.delete(
+        "/library/manga/100",
+        headers=auth_headers,
+    )
+    assert response.status_code == 204
+
+def test_manga_library_requires_auth(client):
+    response = client.post(
+        "/library/manga",
+        json={
+            "manga_id": 20,
+            "status": "reading",
+        }
+    )
+    assert response.status_code == 401

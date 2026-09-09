@@ -82,6 +82,7 @@ def test_manga_details_success(client, monkeypatch):
                 "description": "A dark fantasy story.",
                 "bannerImage": "http://example.com/banner.jpg",
                 "staff": {"nodes": [{"name": {"full": "Kentaro Miura"}}]},
+                "characters": {"nodes": [{"id": 1, "name": {"full": "Monkey D. Luffy"}, "image": {"medium": "http://example.com/luffy.jpg"}, "description": "The captain."},]}
             }
         }
     }

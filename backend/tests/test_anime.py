@@ -80,6 +80,7 @@ def test_anime_details_success(client, monkeypatch):
                 "description": "A ninja story.",
                 "bannerImage": "http://example.com/banner.jpg",
                 "studios": {"nodes": [{"name": "Studio Pierrot"}]},
+                "characters": {"nodes": [{"id": 1, "name": {"full": "Monkey D. Luffy"}, "image": {"medium": "http://example.com/luffy.jpg"}, "description": "The captain."},]}
             }
         }
     }

@@ -21,12 +21,21 @@ class MangaSearchResult(BaseModel):
     genres: list[str]
     average_score: int | None = None 
 
+class CharacterOut(BaseModel):
+    id: int
+    name: str | None = None 
+    image: HttpUrl
+    description: str | None = None 
+
 class AnimeDetail(AnimeSearchResult):
     description: str | None = None
     banner_image: HttpUrl | None = None 
     studios: list[str] 
+    characters: list[CharacterOut]
 
 class MangaDetail(MangaSearchResult):
     description: str | None = None
     banner_image: HttpUrl | None = None
     authors: list[str]
+    characters: list[CharacterOut]
+

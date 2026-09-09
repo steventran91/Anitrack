@@ -1,5 +1,5 @@
 import httpx
-from app.schemas.anime import AnimeSearchResult, MangaSearchResult, AnimeDetail, MangaDetail
+from app.schemas.anime import AnimeSearchResult, MangaSearchResult, AnimeDetail, MangaDetail, CharacterOut
 
 ANILIST_API_URL = "https://graphql.anilist.co"
 
@@ -80,6 +80,18 @@ query ($id: Int) {
         name
       }
     }
+    characters {
+      nodes {
+        id
+        name {
+          full
+        }
+        image {
+          medium
+        }
+        description
+      }
+    }
   }
 }
 """
@@ -107,6 +119,18 @@ query ($id: Int) {
         name {
             full 
         }
+      }
+    }
+    characters {
+      nodes {
+        id
+        name {
+          full
+        }
+        image {
+          medium
+        }
+        description
       }
     }
   }
@@ -208,7 +232,8 @@ def map_to_anime_detail(raw_data: dict) -> AnimeDetail:
                     status=media["status"],
                     genres=media["genres"],
                     average_score=media["averageScore"], 
-                    studios=[studio["name"] for studio in media["studios"]["nodes"]]
+                    studios=[studio["name"] for studio in media["studios"]["nodes"]],
+                    characters=[CharacterOut(id=c["id"], name=c["name"]["full"], image=c["image"]["medium"], description=c["description"]) for c in media["characters"]["nodes"]]
             )
 
 async def get_manga_details(manga_id: int) -> dict:
@@ -240,5 +265,6 @@ def map_to_manga_detail(raw_data: dict) -> MangaDetail:
         status=media["status"],
         genres=media["genres"],
         average_score=media["averageScore"],
-        authors=[staff["name"]["full"] for staff in media["staff"]["nodes"]]
+        authors=[staff["name"]["full"] for staff in media["staff"]["nodes"]],
+        characters=[CharacterOut(id=c["id"], name=c["name"]["full"], image=c["image"]["medium"], description=c["description"]) for c in media["characters"]["nodes"]]
     )

@@ -27,15 +27,24 @@ class CharacterOut(BaseModel):
     image: HttpUrl
     description: str | None = None 
 
+class RecommendationOut(BaseModel):
+    id: int
+    title: str | None = None 
+    image: HttpUrl
+
 class AnimeDetail(AnimeSearchResult):
     description: str | None = None
     banner_image: HttpUrl | None = None 
     studios: list[str] 
     characters: list[CharacterOut]
+    recommendations: list[RecommendationOut]
 
 class MangaDetail(MangaSearchResult):
     description: str | None = None
     banner_image: HttpUrl | None = None
     authors: list[str]
     characters: list[CharacterOut]
+    recommendations: list[RecommendationOut]
+
+
 

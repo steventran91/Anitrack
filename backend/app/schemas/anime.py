@@ -32,12 +32,19 @@ class RecommendationOut(BaseModel):
     title: str | None = None 
     image: HttpUrl
 
+class RelationOut(BaseModel):
+    id: int
+    title: str | None = None 
+    image: HttpUrl
+    relation_type: str 
+
 class AnimeDetail(AnimeSearchResult):
     description: str | None = None
     banner_image: HttpUrl | None = None 
     studios: list[str] 
     characters: list[CharacterOut]
     recommendations: list[RecommendationOut]
+    relations: list[RelationOut]
 
 class MangaDetail(MangaSearchResult):
     description: str | None = None
@@ -45,6 +52,7 @@ class MangaDetail(MangaSearchResult):
     authors: list[str]
     characters: list[CharacterOut]
     recommendations: list[RecommendationOut]
+    relations: list[RelationOut]
 
 
 

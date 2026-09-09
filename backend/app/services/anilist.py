@@ -1,5 +1,5 @@
 import httpx
-from app.schemas.anime import AnimeSearchResult, MangaSearchResult, AnimeDetail, MangaDetail, CharacterOut, RecommendationOut
+from app.schemas.anime import AnimeSearchResult, MangaSearchResult, AnimeDetail, MangaDetail, CharacterOut, RecommendationOut, RelationOut
 
 ANILIST_API_URL = "https://graphql.anilist.co"
 
@@ -105,6 +105,20 @@ query ($id: Int) {
         }
       }
     }
+    relations {
+      edges {
+        relationType
+        node {
+          id
+          title {
+            english
+          }
+          coverImage {
+            large
+          }
+        }
+      }
+    }
   }
 }
 """
@@ -152,6 +166,20 @@ query ($id: Int) {
           id 
           title {
             english
+          }
+          coverImage {
+            large
+          }
+        }
+      }
+    }
+    relations {
+      edges {
+        relationType
+        node {
+          id
+          title {
+           english
           }
           coverImage {
             large
@@ -260,7 +288,8 @@ def map_to_anime_detail(raw_data: dict) -> AnimeDetail:
                     average_score=media["averageScore"], 
                     studios=[studio["name"] for studio in media["studios"]["nodes"]],
                     characters=[CharacterOut(id=c["id"], name=c["name"]["full"], image=c["image"]["medium"], description=c["description"]) for c in media["characters"]["nodes"]],
-                    recommendations=[RecommendationOut(id=r["mediaRecommendation"]["id"], title=r["mediaRecommendation"]["title"]["english"], image=r["mediaRecommendation"]["coverImage"]["large"]) for r in media["recommendations"]["nodes"]]
+                    recommendations=[RecommendationOut(id=r["mediaRecommendation"]["id"], title=r["mediaRecommendation"]["title"]["english"], image=r["mediaRecommendation"]["coverImage"]["large"]) for r in media["recommendations"]["nodes"]],
+                    relations=[RelationOut(id=edge["node"]["id"], title=edge["node"]["title"]["english"], image=edge["node"]["coverImage"]["large"], relation_type=edge["relationType"],) for edge in media["relations"]["edges"]]
             )
 
 async def get_manga_details(manga_id: int) -> dict:
@@ -294,5 +323,7 @@ def map_to_manga_detail(raw_data: dict) -> MangaDetail:
         average_score=media["averageScore"],
         authors=[staff["name"]["full"] for staff in media["staff"]["nodes"]],
         characters=[CharacterOut(id=c["id"], name=c["name"]["full"], image=c["image"]["medium"], description=c["description"]) for c in media["characters"]["nodes"]],
-        recommendations=[RecommendationOut(id=r["mediaRecommendation"]["id"], title=r["mediaRecommendation"]["title"]["english"], image=r["mediaRecommendation"]["coverImage"]["large"]) for r in media["recommendations"]["nodes"]]
+        recommendations=[RecommendationOut(id=r["mediaRecommendation"]["id"], title=r["mediaRecommendation"]["title"]["english"], image=r["mediaRecommendation"]["coverImage"]["large"]) for r in media["recommendations"]["nodes"]],
+        relations=[RelationOut(id=edge["node"]["id"], title=edge["node"]["title"]["english"], image=edge["node"]["coverImage"]["large"], relation_type=edge["relationType"],) for edge in media["relations"]["edges"]]
+
     )

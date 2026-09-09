@@ -36,3 +36,7 @@ class MangaLibraryEntryOut(BaseModel):
     start_date: date | None = None 
 
     model_config = {"from_attributes": True}
+
+class Dashboard(BaseModel):
+    continue_watching: list[AnimeLibraryEntryOut]
+    continue_reading: list[MangaLibraryEntryOut]

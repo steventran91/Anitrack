@@ -6,6 +6,7 @@ from app.api.routers.anime import router as anime_router
 from app.api.routers.manga import router as manga_router
 from app.api.routers.library import router as library_router
 from app.api.routers.favorite import router as favorite_router
+from app.api.routers.dashboard import router as dashboard_router
 
 from app.api.deps import get_db
 
@@ -16,6 +17,7 @@ app.include_router(anime_router)
 app.include_router(manga_router)
 app.include_router(library_router)
 app.include_router(favorite_router)
+app.include_router(dashboard_router)
 
 @app.get("/health")
 def health_check(db: Session = Depends(get_db)):

@@ -1,8 +1,13 @@
+import {Routes, Route} from 'react-router-dom';
+import Register from './pages/Register';
+import Login from './pages/Login';
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-semibold">AniTrack</h1>
-    </div>
+    <Routes>
+      <Route path="/register" element={<Register/>}/>
+      <Route path="/login" element={<Login/>}/>
+    </Routes>
   )
 }
 

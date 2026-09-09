@@ -17,12 +17,12 @@ function Register() {
                 body: JSON.stringify(data),
             }),
         onSuccess: () => {
-            navigate('/login')
+            navigate('/login');
         },
-    })
+    });
 
     function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-        e.preventDefault()
+        e.preventDefault();
         mutation.mutate({first_name: firstName, last_name: lastName, email, password})
     }
 

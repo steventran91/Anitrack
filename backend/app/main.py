@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text 
 from sqlalchemy.orm import Session
 from app.api.routers.auth import router as auth_router
@@ -7,10 +8,17 @@ from app.api.routers.manga import router as manga_router
 from app.api.routers.library import router as library_router
 from app.api.routers.favorite import router as favorite_router
 from app.api.routers.dashboard import router as dashboard_router
-
 from app.api.deps import get_db
 
+
 app = FastAPI(title="AniTrack API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5174"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(anime_router)

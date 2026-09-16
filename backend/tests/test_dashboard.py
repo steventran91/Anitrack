@@ -69,7 +69,7 @@ def test_dashboard_only_returns_own_entries(client, db_session, auth_headers):
     other_user = User(
         first_name="Max",
         last_name="Tran",
-        email="Max@gmail.com",
+        email="MaxTran@gmail.com",
         hashed_password=hash_password("Max123"),
     )
     db_session.add(other_user)

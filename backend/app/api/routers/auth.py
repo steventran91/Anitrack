@@ -10,7 +10,7 @@ from app.core.security import verify_password, create_access_token
 
 router = APIRouter()
 
-@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     user = User(
         first_name = user_in.first_name,
@@ -25,7 +25,8 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=400, detail = "Email already registered")
     db.refresh(user)
-    return user
+    token = create_access_token({"sub": str(user.id)})
+    return Token(access_token=token, token_type="bearer")
 
 @router.post("/login", response_model=Token)
 def login(request: UserLogin, db: Session = Depends(get_db)):

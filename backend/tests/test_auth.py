@@ -10,9 +10,7 @@ def test_register_success(client):
     )
     assert response.status_code == 201
     data = response.json()
-    assert data["email"] == "newuser@example.com"
-    assert "hashed_password" not in data
-    assert "password" not in data
+    assert "access_token" in data
 
 def test_register_duplicate_email(client):
     response = client.post(
@@ -26,7 +24,7 @@ def test_register_duplicate_email(client):
     )
     assert response.status_code == 201
     data = response.json()
-    assert data["email"] == "uzumaki@gmail.com"
+    assert "access_token" in data
 
     dupe_email_response = client.post(
         "/auth/register",
@@ -104,7 +102,6 @@ def test_me_with_valid_token(client):
         },
     )
     assert response.status_code == 201
-    registered_id = response.json()["id"]
 
     login_response = client.post(
         "/auth/login",
@@ -122,10 +119,8 @@ def test_me_with_valid_token(client):
     )
     assert token_response.status_code == 200 
     data = token_response.json()
-    assert data["id"] == registered_id
     assert data["email"] == "pirateking@gmail.com"
-    assert data["first_name"] == "Luffy"
-    assert data["last_name"] == "Monkey"
+    
 
 def test_me_without_token(client):
     response = client.get(

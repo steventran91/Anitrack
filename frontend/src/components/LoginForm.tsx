@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api";
 
-function LoginForm({onSuccess}: {onSuccess: () => void}) {
+function LoginForm({onSuccess}: {onSuccess: (data: {access_token: string; token_type: string}) => void}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 

@@ -13,8 +13,8 @@ function AuthModal() {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-            <div className="bg-white rounded-lg p-8 w-96">
+        <div className="fixed inset-0 bg-stone/25 flex items-center justify-center">
+            <div className="bg-[#F4EEE2] rounded-lg p-8 w-96 shadow-xl">
                 {view === 'choice' && (
                     <div className="flex flex-col gap-4">
                         <button onClick={() => setView('register')}>Register</button>
